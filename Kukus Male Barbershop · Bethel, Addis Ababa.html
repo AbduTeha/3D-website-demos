@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kukus Male Barbershop · Bethel, Addis Ababa</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@300;500;800&display=swap">
+<style>
+:root{--bg:#0c0c0e;--fg:#f4f1ea;--muted:#9a968d;--accent:#d8362f;--line:rgba(244,241,234,.16);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--fg);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.ui{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:space-between;
+padding:calc(24px + env(safe-area-inset-top,0px)) 28px calc(24px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.ui a{pointer-events:auto}
+header{display:flex;justify-content:space-between;align-items:center;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted)}
+header b{color:var(--fg);font-weight:600}
+.hero{max-width:520px}
+.hero small{display:block;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+h1{font-size:clamp(44px,9vw,104px);line-height:.92;font-weight:800;letter-spacing:-.03em;text-transform:uppercase}
+h1 span{display:block;font-weight:300;color:var(--muted)}
+footer{display:flex;flex-wrap:wrap;gap:12px 36px;align-items:flex-end;justify-content:space-between;border-top:1px solid var(--line);padding-top:18px;font-size:14px}
+footer div span{display:block;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.call{background:var(--fg);color:var(--bg);padding:14px 26px;border-radius:99px;text-decoration:none;font-weight:700;letter-spacing:.04em;transition:transform .2s,background .2s}
+.call:hover{background:var(--accent);color:#fff;transform:translateY(-2px)}
+.hint{position:fixed;right:28px;top:50%;writing-mode:vertical-rl;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);transform:translateY(-50%)}
+body{font-family:'Helvetica Neue',Helvetica,Arial,'Noto Sans Ethiopic',sans-serif}
+h1 i{font-style:normal;display:block}
+.ui button{pointer-events:auto;font:inherit;cursor:pointer}
+.lang{background:none;border:1px solid var(--line);color:var(--fg);border-radius:99px;padding:6px 14px;font-size:12px;letter-spacing:.1em}
+.menu{background:none;border:1px solid var(--line);color:var(--fg);border-radius:99px;padding:13px 22px;font-size:14px;transition:border-color .2s}
+.menu:hover{border-color:var(--fg)}
+.acts{display:flex;gap:10px;flex-wrap:wrap}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);background:rgba(12,12,14,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-left:1px solid var(--line);
+padding:calc(28px + env(safe-area-inset-top,0px)) 28px calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(100%);transition:transform .45s cubic-bezier(.2,.8,.2,1);overflow-y:auto;z-index:5}
+.panel.open{transform:none}
+.panel h2{font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin:26px 0 12px;font-weight:500}
+.panel h2:first-of-type{margin-top:40px}
+.panel li{list-style:none;display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line);font-size:15px}
+.panel ul{padding:0}.panel li b{font-weight:700}.panel li em{font-style:normal;color:var(--muted);font-size:12px;margin-left:4px}
+.panel a{color:var(--fg)}
+.x{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));right:20px;background:none;border:0;color:var(--fg);font-size:26px;cursor:pointer}
+@media(max-width:700px){.hint{display:none}.hero{margin-bottom:8px}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="ui">
+  <header><b data-t="n1">Kukus</b><span data-t="est">Est. Bethel · Addis Ababa</span><button class="lang" id="lang" aria-label="Language">አማ</button></header>
+  <section class="hero">
+    <small data-t="sub">Male Barbershop</small>
+    <h1><i data-t="n1">Kukus</i><span data-t="n2">Barbershop</span></h1>
+  </section>
+  <footer>
+    <div><span data-t="find">Find us</span><i style="font-style:normal" data-t="loc">Bethel, Addis Ababa</i></div>
+    <div><span data-t="call">Call</span>0911 234 432</div>
+    <div class="acts"><button class="menu" id="open" data-t="menu">Services &amp; hours</button><a class="call" href="tel:+251911234432" data-t="book">Book a cut →</a></div>
+  </footer>
+</div>
+<div class="hint" data-t="hint">Move to spin</div>
+<aside class="panel" id="p" aria-label="Services and hours">
+  <button class="x" id="close" aria-label="Close">×</button>
+  <h2 data-t="svc">Services</h2>
+  <ul>
+    <li><span data-t="s1">Haircut</span><span><b>250</b><em data-t="etb">ETB</em></span></li>
+    <li><span data-t="s2">Beard trim</span><span><b>150</b><em data-t="etb">ETB</em></span></li>
+    <li><span data-t="s3">Haircut + beard</span><span><b>350</b><em data-t="etb">ETB</em></span></li>
+    <li><span data-t="s4">Kids cut</span><span><b>180</b><em data-t="etb">ETB</em></span></li>
+    <li><span data-t="s5">Hot towel shave</span><span><b>200</b><em data-t="etb">ETB</em></span></li>
+  </ul>
+  <h2 data-t="hrs">Opening hours</h2>
+  <ul>
+    <li><span data-t="d1">Mon – Sat</span><span>8:00 – 20:00</span></li>
+    <li><span data-t="d2">Sunday</span><span>9:00 – 18:00</span></li>
+  </ul>
+  <h2 data-t="find">Find us</h2>
+  <ul><li><span data-t="loc">Bethel, Addis Ababa</span><a target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=Kukus+Male+Barbershop+Bethel+Addis+Ababa" data-t="map">Open in Maps ↗</a></li></ul>
+</aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var canvas=document.getElementById('c');
+  var renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  var scene=new THREE.Scene();
+  var camera=new THREE.PerspectiveCamera(40,1,.1,100);
+  camera.position.set(0,0,9);
+
+  scene.add(new THREE.AmbientLight(0xffffff,.55));
+  var key=new THREE.DirectionalLight(0xffffff,1.1);key.position.set(4,5,6);scene.add(key);
+  var rim=new THREE.PointLight(0xd8362f,1.4,30);rim.position.set(-5,-2,3);scene.add(rim);
+
+  // striped texture (tileable diagonal bands)
+  var S=128,tc=document.createElement('canvas');tc.width=tc.height=S;
+  var g=tc.getContext('2d'),img=g.createImageData(S,S);
+  var cols=[[216,54,47],[244,241,234],[38,84,170],[244,241,234]];
+  for(var y=0;y<S;y++)for(var x=0;x<S;x++){
+    var c=cols[Math.floor(((x+y)%S)/(S/4))],i=(y*S+x)*4;
+    img.data[i]=c[0];img.data[i+1]=c[1];img.data[i+2]=c[2];img.data[i+3]=255;
+  }
+  g.putImageData(img,0,0);
+  var tex=new THREE.CanvasTexture(tc);
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(3,3);
+
+  var pole=new THREE.Group();
+  var glass=new THREE.Mesh(new THREE.CylinderGeometry(.62,.62,3.4,48,1,true),
+    new THREE.MeshStandardMaterial({map:tex,roughness:.25,metalness:.1,side:THREE.DoubleSide}));
+  pole.add(glass);
+  var metal=new THREE.MeshStandardMaterial({color:0xcfcfd4,metalness:.9,roughness:.25});
+  [1.8,-1.8].forEach(function(y){
+    var cap=new THREE.Mesh(new THREE.CylinderGeometry(.7,.7,.3,48),metal);cap.position.y=y;pole.add(cap);
+  });
+  var ball=new THREE.Mesh(new THREE.SphereGeometry(.34,32,32),metal);ball.position.y=2.2;pole.add(ball);
+  var base=new THREE.Mesh(new THREE.CylinderGeometry(.35,.45,.25,32),metal);base.position.y=-2.05;pole.add(base);
+  pole.rotation.z=-.12;
+  scene.add(pole);
+
+  // floating "hair clippings" particles
+  var N=260,pos=new Float32Array(N*3);
+  for(var k=0;k<N;k++){pos[k*3]=(Math.random()-.5)*16;pos[k*3+1]=(Math.random()-.5)*10;pos[k*3+2]=(Math.random()-.5)*8-1;}
+  var pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  var pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0xf4f1ea,size:.035,transparent:true,opacity:.5}));
+  scene.add(pts);
+
+  var mx=0,my=0,spin=0;
+  addEventListener('pointermove',function(e){mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;});
+
+  function resize(){
+    var w=innerWidth,h=innerHeight;
+    renderer.setSize(w,h,false);camera.aspect=w/h;
+    var wide=w>h*1.1;
+    pole.position.x=wide?2.6:0;
+    pole.scale.setScalar(wide?1:.8);
+    pole.position.y=wide?0:.3;
+    camera.updateProjectionMatrix();
+  }
+  addEventListener('resize',resize);resize();
+
+  var clock=new THREE.Clock();
+  (function loop(){
+    var dt=clock.getDelta(),t=clock.elapsedTime;
+    tex.offset.y-=dt*.25;                       // barber spiral
+    spin+=dt*.25+(mx*dt*2);
+    pole.rotation.y=spin;
+    pole.rotation.x=my*.25;
+    pole.position.y+=((Math.sin(t*.8)*.08)-0)*.01;
+    pts.rotation.y=t*.02;pts.position.y=Math.sin(t*.3)*.15;
+    camera.position.x+=((mx*1.2)-camera.position.x)*.04;
+    camera.lookAt(0,0,0);
+    renderer.render(scene,camera);
+    requestAnimationFrame(loop);
+  })();
+})();
+</script>
+<script>
+(function(){
+  var T={en:{n1:'Kukus',n2:'Barbershop',est:'Est. Bethel · Addis Ababa',sub:'Male Barbershop',find:'Find us',loc:'Bethel, Addis Ababa',call:'Call',menu:'Services & hours',book:'Book a cut →',hint:'Move to spin',svc:'Services',hrs:'Opening hours',s1:'Haircut',s2:'Beard trim',s3:'Haircut + beard',s4:'Kids cut',s5:'Hot towel shave',etb:'ETB',d1:'Mon – Sat',d2:'Sunday',map:'Open in Maps ↗'},
+  am:{n1:'ኩኩስ',n2:'ፀጉር ቤት',est:'ቤቴል · አዲስ አበባ',sub:'የወንዶች ፀጉር ቤት',find:'አድራሻ',loc:'ቤቴል፣ አዲስ አበባ',call:'ይደውሉ',menu:'አገልግሎት እና ሰዓት',book:'ቀጠሮ ይያዙ →',hint:'ለማሽከርከር ያንቀሳቅሱ',svc:'አገልግሎቶች',hrs:'የሥራ ሰዓት',s1:'ፀጉር ቁረጣ',s2:'ጢም ማስተካከል',s3:'ፀጉር እና ጢም',s4:'የልጆች ፀጉር',s5:'በሙቅ ፎጣ መላጨት',etb:'ብር',d1:'ሰኞ – ቅዳሜ',d2:'እሑድ',map:'በካርታ ክፈት ↗'}};
+  var lb=document.getElementById('lang'),p=document.getElementById('p');
+  function set(l){
+    document.documentElement.lang=l;
+    document.querySelectorAll('[data-t]').forEach(function(e){e.textContent=T[l][e.dataset.t];});
+    lb.textContent=l==='am'?'EN':'አማ';
+    try{localStorage.setItem('kl',l);}catch(e){}
+  }
+  var cur='en';try{cur=localStorage.getItem('kl')||'en';}catch(e){}
+  if(cur==='am')set('am');
+  lb.onclick=function(){cur=cur==='en'?'am':'en';set(cur);};
+  document.getElementById('open').onclick=function(){p.classList.add('open');};
+  document.getElementById('close').onclick=function(){p.classList.remove('open');};
+  addEventListener('keydown',function(e){if(e.key==='Escape')p.classList.remove('open');});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Space Stations Study Center</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap">
+<style>
+:root{--bg:#05060d;--fg:#eef1fb;--muted:#8d93ad;--accent:#7fb2ff;--line:rgba(238,241,251,.16);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--fg);font-family:'Space Grotesk','Helvetica Neue',Arial,sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:calc(22px + env(safe-area-inset-top,0px)) 28px 0;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);z-index:3;pointer-events:none}
+.hud b{color:var(--fg);font-weight:500}
+section{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;padding:0 28px;pointer-events:none}
+section.r{justify-content:flex-end;text-align:right}
+.t{max-width:480px;opacity:0;transform:translateY(30px);transition:opacity .9s,transform .9s}
+.t.in{opacity:1;transform:none}
+small{display:block;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin-bottom:14px}
+h1,h2{font-weight:700;letter-spacing:-.03em;line-height:.95;text-transform:uppercase}
+h1{font-size:clamp(46px,9vw,104px)}h2{font-size:clamp(40px,7vw,80px)}
+h1 span{display:block;font-weight:300;color:var(--muted)}
+p{margin-top:18px;color:var(--muted);font-size:17px;line-height:1.5}
+.call{display:inline-block;margin-top:26px;background:var(--fg);color:var(--bg);padding:14px 26px;border-radius:99px;text-decoration:none;font-weight:700;pointer-events:auto;transition:background .2s,color .2s}
+.call:hover{background:var(--accent)}
+.info{margin-top:22px;font-size:14px;line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
+#arr{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:4;width:48px;height:48px;border-radius:50%;border:1px solid var(--line);background:rgba(5,6,13,.4);color:var(--fg);font-size:20px;cursor:pointer;animation:b 1.8s infinite;transition:border-color .2s}
+#arr:hover{border-color:var(--fg)}
+#arr.up{animation:none}#arr.up span{display:inline-block;transform:rotate(180deg)}
+@keyframes b{50%{transform:translate(-50%,6px)}}
+@media(max-width:700px){section,section.r{align-items:flex-end;justify-content:flex-start;text-align:left;padding-bottom:16vh}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><b>Space Stations</b><span id="lab">01 · Sun</span></div>
+
+<section><div class="t"><small>Study Center</small><h1>Space Stations<span>Study Center</span></h1><p>Where focus has no gravity.</p></div></section>
+<section class="r"><div class="t"><small>01 · Earth</small><h2>Learn</h2><p>Guided study sessions that keep you on course.</p></div></section>
+<section><div class="t"><small>02 · Mars</small><h2>Focus</h2><p>A quiet, distraction-free place to get real work done.</p></div></section>
+<section class="r"><div class="t"><small>03 · Jupiter</small><h2>Grow</h2><p>Build habits that carry you further every term.</p></div></section>
+<section><div class="t"><small>04 · Saturn</small><h2>Join the mission</h2><p>Reserve your seat at the station.</p>
+<div class="info">Phone: <b>your phone number</b><br>Address: <b>your address</b></div>
+<a class="call" href="tel:">Call us →</a></div></section>
+
+<button id="arr" aria-label="Scroll"><span>↓</span></button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var N=5,GAP=22,names=['Sun','Earth','Mars','Jupiter','Saturn'];
+  var renderer=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  var scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(40,1,.1,300);
+  scene.add(new THREE.AmbientLight(0xffffff,.4));
+  var sun=new THREE.DirectionalLight(0xffffff,1.2);sun.position.set(3,4,6);scene.add(sun);
+
+  function rnd(a,b){return a+Math.random()*(b-a);}
+  function tex(f){var c=document.createElement('canvas');c.width=512;c.height=256;f(c.getContext('2d'),512,256);return new THREE.CanvasTexture(c);}
+  function blotch(base,cols,n,r){return tex(function(g,w,h){g.fillStyle=base;g.fillRect(0,0,w,h);
+    for(var i=0;i<n;i++){g.fillStyle=cols[i%cols.length];g.globalAlpha=rnd(.4,.9);g.beginPath();g.arc(rnd(0,w),rnd(0,h),rnd(r/3,r),0,7);g.fill();}});}
+  function bands(cols,n){return tex(function(g,w,h){var y=0;while(y<h){var bh=rnd(h/n*.4,h/n*1.6);g.fillStyle=cols[Math.floor(Math.random()*cols.length)];g.fillRect(0,y,w,bh);y+=bh;}
+    for(var i=0;i<300;i++){g.fillStyle='rgba(255,255,255,'+rnd(.02,.07)+')';g.fillRect(rnd(0,w),rnd(0,h),rnd(20,90),rnd(1,3));}});}
+  function ball(r,map,mat){return new THREE.Mesh(new THREE.SphereGeometry(r,48,48),mat||new THREE.MeshStandardMaterial({map:map,roughness:.9}));}
+
+  var bodies=[];
+  // 0 Sun
+  var s=new THREE.Group();
+  s.add(ball(2.2,null,new THREE.MeshBasicMaterial({map:blotch('#f0a020',['#ffd35a','#ff7a18','#ffe9a0'],90,40)})));
+  var gc=document.createElement('canvas');gc.width=gc.height=128;var gg=gc.getContext('2d'),gr=gg.createRadialGradient(64,64,10,64,64,64);
+  gr.addColorStop(0,'rgba(255,200,90,.9)');gr.addColorStop(1,'rgba(255,120,20,0)');gg.fillStyle=gr;gg.fillRect(0,0,128,128);
+  var glow=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(gc),blending:THREE.AdditiveBlending,depthWrite:false}));
+  glow.scale.set(9,9,1);s.add(glow);bodies.push(s);
+  // 1 Earth + Moon
+  var e=new THREE.Group(),earth=ball(1.5,blotch('#1d5fb8',['#2f8a4a','#3d9a55','#e8f0f8','#1a4f9c'],70,45));e.add(earth);
+  var moonPivot=new THREE.Group(),moon=ball(.4,blotch('#9a9a9a',['#777','#b5b5b5','#888'],50,14));moon.position.x=2.7;moonPivot.add(moon);e.add(moonPivot);bodies.push(e);
+  // 2 Mars
+  var m=new THREE.Group();m.add(ball(1.2,blotch('#b5472a',['#d46a3a','#8c3220','#e0905a'],60,40)));bodies.push(m);
+  // 3 Jupiter
+  var j=new THREE.Group();j.add(ball(2.2,bands(['#d8b48a','#b98a5e','#efe0c8','#a2674a','#c9a27a'],14)));bodies.push(j);
+  // 4 Saturn + ring
+  var sa=new THREE.Group();sa.add(ball(1.7,bands(['#e3cf9f','#cdb584','#f0e2bd','#bfa572'],10)));
+  var rc=document.createElement('canvas');rc.width=256;rc.height=4;var rg2=rc.getContext('2d');
+  for(var x=0;x<256;x++){rg2.fillStyle='rgba(222,200,150,'+(x%23<5?.15:rnd(.45,.85))+')';rg2.fillRect(x,0,1,4);}
+  var rgeo=new THREE.RingGeometry(2.3,3.7,96),pa=rgeo.attributes.position,uv=rgeo.attributes.uv,v=new THREE.Vector3();
+  for(var i=0;i<pa.count;i++){v.fromBufferAttribute(pa,i);uv.setXY(i,(v.length()-2.3)/1.4,.5);}
+  var ring=new THREE.Mesh(rgeo,new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(rc),transparent:true,side:THREE.DoubleSide}));
+  ring.rotation.x=Math.PI/2.2;sa.add(ring);sa.rotation.z=-.3;bodies.push(sa);
+  bodies.forEach(function(b,i){b.position.z=-i*GAP;scene.add(b);});
+
+  // stars
+  var C=2200,sp=new Float32Array(C*3);
+  for(var k=0;k<C;k++){sp[k*3]=rnd(-45,45);sp[k*3+1]=rnd(-28,28);sp[k*3+2]=rnd(20,-(N-1)*GAP-70);}
+  var sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xffffff,size:.12,transparent:true,opacity:.85})));
+
+  function resize(){
+    var w=innerWidth,h=innerHeight,wide=w>h*1.1;
+    renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+    bodies.forEach(function(b,i){
+      b.position.x=wide?(i%2?-1:1)*3.4:0;
+      b.position.y=wide?0:1.5;
+      b.scale.setScalar(wide?1:.55);
+    });
+  }
+  addEventListener('resize',resize);resize();
+
+  var mx=0,my=0,p=0,secs=document.querySelectorAll('.t'),lab=document.getElementById('lab'),arr=document.getElementById('arr');
+  addEventListener('pointermove',function(ev){mx=ev.clientX/innerWidth-.5;my=ev.clientY/innerHeight-.5;});
+  var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.35});
+  secs.forEach(function(t){io.observe(t);});
+  arr.onclick=function(){var max=document.documentElement.scrollHeight-innerHeight;
+    scrollTo({top:scrollY>max-10?0:(Math.round(scrollY/innerHeight)+1)*innerHeight,behavior:'smooth'});};
+
+  (function loop(){
+    var max=Math.max(1,document.documentElement.scrollHeight-innerHeight),t=Math.min(1,Math.max(0,scrollY/max));
+    var dp=t-p;p+=dp*.07;
+    camera.position.set(mx*.8,-my*.5,9-p*(N-1)*GAP);
+    camera.lookAt(mx*.2,0,camera.position.z-10);
+    bodies.forEach(function(b){b.rotation.y+=.0025+dp*7;});
+    moonPivot.rotation.y+=.01+dp*10;
+    var idx=Math.round(p*(N-1));
+    lab.textContent='0'+(idx+1)+' · '+names[idx];
+    arr.className=t>.97?'up':'';
+    renderer.render(scene,camera);
+    requestAnimationFrame(loop);
+  })();
+})();
+</script>
+</body>
+</html>

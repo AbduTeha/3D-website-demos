@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Market Center</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap">
+<style>
+:root{--bg1:#fff6dc;--bg2:#ffd9b8;--fg:#2b1d12;--muted:#7a6350;--red:#e5392f;--green:#4caf50;--sun:#ffb81c;--line:rgba(43,29,18,.14);
+color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0}
+body{color:var(--fg);font-family:'Poppins','Helvetica Neue',Arial,sans-serif;background:linear-gradient(160deg,var(--bg1),var(--bg2)) fixed}
+body::before{content:"";position:fixed;right:-12vmax;top:-12vmax;width:48vmax;height:48vmax;border-radius:50%;background:radial-gradient(circle,rgba(255,190,40,.55),rgba(255,190,40,0) 68%);pointer-events:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.bar{position:fixed;top:0;left:0;height:4px;width:100%;background:linear-gradient(90deg,var(--red),var(--sun),var(--green));transform-origin:left;transform:scaleX(0);z-index:5}
+.hud{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:calc(22px + env(safe-area-inset-top,0px)) 28px 0;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);z-index:3;pointer-events:none}
+.hud b{color:var(--fg);font-weight:800}
+section{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;padding:0 28px;pointer-events:none}
+.t{max-width:470px;opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s}
+.t.in{opacity:1;transform:none}
+small{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:#fff;background:var(--red);padding:6px 14px;border-radius:99px;margin-bottom:18px}
+h1,h2{font-weight:800;letter-spacing:-.035em;line-height:.95}
+h1{font-size:clamp(50px,10vw,112px)}h2{font-size:clamp(44px,8vw,88px)}
+h1 span{display:block;color:var(--red)}
+p{margin-top:18px;color:var(--muted);font-size:18px;line-height:1.55}
+.info{margin-top:22px;font-size:15px;line-height:1.9;border-top:2px dashed var(--line);padding-top:14px}
+.call{display:inline-block;margin-top:24px;background:var(--red);color:#fff;padding:15px 30px;border-radius:99px;text-decoration:none;font-weight:600;pointer-events:auto;box-shadow:0 8px 20px rgba(229,57,47,.3);transition:transform .2s}
+.call:hover{transform:translateY(-3px)}
+@media(max-width:700px){section{align-items:flex-end;padding-bottom:9vh}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<canvas id="c"></canvas>
+<div class="hud"><b>Market Center</b><span id="lab">01 · Welcome</span></div>
+
+<section><div class="t"><small>Fresh · Local · Daily</small><h1>Market<span>Center</span></h1><p>Everything fresh, in one lively place.</p></div></section>
+<section><div class="t"><small>01 · Fresh</small><h2>Picked at its best</h2><p>Seasonal fruit and vegetables, straight from the farm to your basket.</p></div></section>
+<section><div class="t"><small>02 · Stalls</small><h2>Local sellers</h2><p>Friendly stalls, honest prices, and something new to find every visit.</p></div></section>
+<section><div class="t"><small>03 · Visit</small><h2>Bring a basket</h2><p>Come by and see what's in season.</p>
+<div class="info">Phone: <b>your phone number</b><br>Address: <b>your address</b><br>Hours: <b>your opening hours</b></div>
+<a class="call" href="tel:">Call us →</a></div></section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var labs=['01 · Welcome','02 · Fresh','03 · Stalls','04 · Visit'];
+  var renderer=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  var scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(38,1,.1,100);
+  camera.position.set(0,1.8,11);camera.lookAt(0,0,0);
+  scene.add(new THREE.HemisphereLight(0xffffff,0xffd9a0,1.05));
+  var dl=new THREE.DirectionalLight(0xffffff,.9);dl.position.set(4,6,5);scene.add(dl);
+
+  function rnd(a,b){return a+Math.random()*(b-a);}
+  function M(c,r){return new THREE.MeshStandardMaterial({color:c,roughness:r==null?.45:r});}
+  function fruit(r,color,leaf,sy){
+    var g=new THREE.Group(),m=new THREE.Mesh(new THREE.SphereGeometry(r,28,20),M(color,.35));m.scale.y=sy||1;g.add(m);
+    if(leaf){var l=new THREE.Mesh(new THREE.SphereGeometry(r*.38,12,8),M(0x43a047));l.scale.set(1.2,.35,1.2);l.position.y=r*(sy||1)*.92;g.add(l);}
+    return g;
+  }
+  var world=new THREE.Group();scene.add(world);
+
+  // stall
+  var stall=new THREE.Group();world.add(stall);
+  var sc=document.createElement('canvas');sc.width=4;sc.height=256;var sg=sc.getContext('2d');
+  for(var i=0;i<8;i++){sg.fillStyle=i%2?'#ffffff':'#e5392f';sg.fillRect(0,i*32,4,32);}
+  var st=new THREE.CanvasTexture(sc);
+  var roof=new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.3,4.4,48,1,true,0,Math.PI),
+    new THREE.MeshStandardMaterial({map:st,roughness:.7,side:THREE.DoubleSide}));
+  roof.rotation.z=Math.PI/2;roof.position.y=1.2;stall.add(roof);
+  for(var s=0;s<8;s++)[-1,1].forEach(function(side){
+    var sc2=new THREE.Mesh(new THREE.SphereGeometry(.275,16,10,0,Math.PI*2,Math.PI/2,Math.PI/2),
+      new THREE.MeshStandardMaterial({color:s%2?0xffffff:0xe5392f,roughness:.7,side:THREE.DoubleSide}));
+    sc2.position.set(-2.2+.275+s*.55,1.2,1.3*side);sc2.scale.set(1,1,.9);stall.add(sc2);
+  });
+  [[-2,1],[2,1],[-2,-1],[2,-1]].forEach(function(p){
+    var post=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,2.2,12),M(0x8d6e63,.8));post.position.set(p[0],.1,p[1]*1.15);stall.add(post);});
+  var counter=new THREE.Mesh(new THREE.BoxGeometry(4.2,.9,1.7),M(0xd9a066,.8));counter.position.y=-.65;stall.add(counter);
+  var cols=[0xe5392f,0xfb8c00,0xfdd835,0x7cb342,0xe5392f,0xfb8c00,0xfdd835,0x7cb342,0xe5392f,0xfb8c00];
+  cols.forEach(function(c,i){var f=fruit(.27,c,i%4==0||i%4==3);f.position.set(-1.8+i*.4,-.05+(i%2)*.04,(i%3-1)*.4);stall.add(f);});
+  stall.position.y=-.2;
+
+  // soft ground shadow
+  var gc=document.createElement('canvas');gc.width=gc.height=128;var gx=gc.getContext('2d'),gr=gx.createRadialGradient(64,64,6,64,64,64);
+  gr.addColorStop(0,'rgba(120,70,20,.28)');gr.addColorStop(1,'rgba(120,70,20,0)');gx.fillStyle=gr;gx.fillRect(0,0,128,128);
+  var sh=new THREE.Mesh(new THREE.PlaneGeometry(8,8),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(gc),transparent:true,depthWrite:false}));
+  sh.rotation.x=-Math.PI/2;sh.position.y=-1.3;world.add(sh);
+
+  // floating produce
+  var fl=[],pal=[[0xe5392f,1],[0xfb8c00,0],[0xfdd835,0],[0x7cb342,0],[0x8e44ad,0],[0xff7043,1]];
+  for(var k=0;k<18;k++){
+    var d=pal[k%pal.length],f=fruit(rnd(.22,.46),d[0],d[1],d[0]==0xfdd835?1.25:1);
+    var a=k/18*Math.PI*2,rad=rnd(3,4.6);
+    f.position.set(Math.cos(a)*rad,rnd(-1,2.6),Math.sin(a)*rad);
+    f.userData={y:f.position.y,ph:rnd(0,6),sp:rnd(.4,1)};world.add(f);fl.push(f);
+  }
+
+  function resize(){
+    var w=innerWidth,h=innerHeight,wide=w>h*1.1;
+    renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+    world.position.set(wide?3:0,wide?0:2.2,0);world.scale.setScalar(wide?1:.52);
+  }
+  addEventListener('resize',resize);resize();
+
+  var mx=0,my=0,p=0,lab=document.getElementById('lab'),bar=document.getElementById('bar');
+  addEventListener('pointermove',function(e){mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;});
+  var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting)x.target.classList.add('in');});},{threshold:.35});
+  document.querySelectorAll('.t').forEach(function(t){io.observe(t);});
+
+  var clock=new THREE.Clock();
+  (function loop(){
+    var dt=clock.getDelta(),t=clock.elapsedTime;
+    var max=Math.max(1,document.documentElement.scrollHeight-innerHeight),tg=Math.min(1,Math.max(0,scrollY/max));
+    p+=(tg-p)*.07;
+    world.rotation.y=-.5+p*Math.PI*1.6+mx*.4;
+    world.rotation.x=my*.15;
+    fl.forEach(function(f){var u=f.userData;f.position.y=u.y+Math.sin(t*u.sp+u.ph)*.25-p*.8;f.rotation.y+=dt*.6;f.rotation.x+=dt*.3;});
+    lab.textContent=labs[Math.min(3,Math.round(p*3))];
+    bar.style.transform='scaleX('+p+')';
+    renderer.render(scene,camera);
+    requestAnimationFrame(loop);
+  })();
+})();
+</script>
+</body>
+</html>
